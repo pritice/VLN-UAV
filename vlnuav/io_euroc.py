@@ -39,7 +39,10 @@ def _load_sensor_info(sensor_yaml: pathlib.Path) -> CameraInfo:
         fx, fy, cx, cy = intr[:4]
     else:
         raise ValueError(f"Unsupported intrinsics format in {sensor_yaml}")
-    distortion = np.array(data.get("distortion_coefficients", {}).get("data", data.get("distortion_coefficients", [0, 0, 0, 0])), dtype=float)
+    distortion_data = data.get("distortion_coefficients", [0, 0, 0, 0])
+    if isinstance(distortion_data, dict):
+        distortion_data = distortion_data.get("data", [0, 0, 0, 0])
+    distortion = np.array(distortion_data, dtype=float)
     t_bs = np.array(data.get("T_BS"), dtype=float)
     if t_bs.shape != (4, 4):
         raise ValueError(f"Invalid T_BS in {sensor_yaml}")
